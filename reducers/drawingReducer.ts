@@ -13,7 +13,7 @@ const drawingSlice = createSlice({
     initialState: {
         drawing: false,
         erasing: false,
-        brushColor: "#2f6df5"
+        brushColor: "#fc236c"
     },
     reducers: {
         setDrawing: (state, action) => {state.drawing = action.payload},

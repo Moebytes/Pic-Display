@@ -1429,6 +1429,7 @@ const applicationMenu = () =>  {
         {label: "Copy", accelerator: "CmdOrCtrl+C",
           click: (item, window) => {
             const win = window as BrowserWindow
+            if (!win) return
             const cursor = screen.getCursorScreenPoint()
             const [winX, winY] = win.getPosition()
             const x = cursor.x - winX
@@ -1462,7 +1463,7 @@ const applicationMenu = () =>  {
         {label: "Zoom In", accelerator: "CmdOrCtrl+=",
           click: (item, window) => {
             const win = window as BrowserWindow
-            win.webContents.send("zoom-in")
+            win?.webContents.send("zoom-in")
         }},
         {label: "Zoom Out", accelerator: "CmdOrCtrl+-",
           click: (item, window) => {
@@ -1478,7 +1479,7 @@ const applicationMenu = () =>  {
         {label: "Unlock Aspect Ratio",
           click: (item, window) => {
             const win = window as BrowserWindow
-            win.setAspectRatio(0)
+            win?.setAspectRatio(0)
         }},
         {label: "Keep Ratio Unlocked", type: "checkbox",
           checked: store.get("keep-ratio-unlocked", false) as boolean,

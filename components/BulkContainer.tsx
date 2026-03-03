@@ -48,31 +48,32 @@ const BulkContainer = forwardRef<BulkRef, BulkProps>((props, ref) => {
             const containerRef = containerRefs[i]
             if (!effectRef.current || !imageRef.current || !containerRef.current) return
 
-            const imageWidth = containerRef.current.clientWidth
-            const imageHeight = containerRef.current.clientHeight
+            const imageWidth = imageRef.current.naturalWidth
+            const imageHeight = imageRef.current.naturalHeight
 
             const canvas = effectRef.current
             const ctx = effectRef.current.getContext("2d")!
-            const landscape = imageWidth >= imageHeight
-            ctx.clearRect(0, 0, canvas.width, canvas.height)
-
-            const pixelWidth = imageWidth / pixelate 
-            const pixelHeight = imageHeight / pixelate
             canvas.width = imageWidth
             canvas.height = imageHeight
+            ctx.clearRect(0, 0, canvas.width, canvas.height)
 
             if (pixelate !== 1) {
-                ctx.drawImage(imageRef.current, 0, 0, pixelWidth, pixelHeight)
-                if (landscape) {
-                    canvas.style.width = `${imageWidth * pixelate}px`
-                    canvas.style.height = "auto"
-                } else {
-                    canvas.style.width = "auto"
-                    canvas.style.height = `${imageHeight * pixelate}px`
-                }
+                const bufferCanvas = document.createElement("canvas")
+                const bufferCtx = bufferCanvas.getContext("2d")!
+
+                const pixelWidth = Math.max(1, Math.floor(canvas.width / pixelate))
+                const pixelHeight = Math.max(1, Math.floor(canvas.height / pixelate))
+
+                bufferCanvas.width = pixelWidth
+                bufferCanvas.height = pixelHeight
+
+                bufferCtx.drawImage(imageRef.current, 0, 0, pixelWidth, pixelHeight)
+                ctx.imageSmoothingEnabled = false
+                ctx.drawImage(bufferCanvas, 0, 0, pixelWidth, pixelHeight,
+                        0, 0, canvas.width, canvas.height)
+                ctx.imageSmoothingEnabled = true
             } else {
-                canvas.style.width = "none"
-                canvas.style.height = "none"
+                ctx.drawImage(imageRef.current, 0, 0, canvas.width, canvas.height)
             }
         }
     }, [pixelate, imageRefs, effectRefs, containerRefs])

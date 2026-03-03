@@ -277,15 +277,15 @@ export default class Functions {
     }
 
     public static render = <T extends boolean = false>(image: HTMLImageElement | HTMLCanvasElement, container: HTMLDivElement, state: ReduxState, buffer?: T) => {
-        if (!image || !container) return "" as T extends true ? ArrayBuffer : string
+        if (!image) return "" as T extends true ? ArrayBuffer : string
         let brightness = state.brightness ?? 100
         let contrast = state.contrast ?? 100
         let hue = state.hue ?? 180
         let saturation = state.saturation ?? 100
         let blur = state.blur ?? 0
         let pixelate = state.pixelate ?? 1
-        const imageWidth = container.clientWidth
-        const imageHeight = container.clientHeight
+        const imageWidth = image instanceof HTMLCanvasElement ? image.width : image.naturalWidth
+        const imageHeight = image instanceof HTMLCanvasElement ? image.height : image.naturalHeight
         const canvas = document.createElement("canvas") as HTMLCanvasElement
         canvas.width = image instanceof HTMLImageElement ? image.naturalWidth : image.width
         canvas.height = image instanceof HTMLImageElement ? image.naturalHeight : image.height
@@ -395,5 +395,19 @@ export default class Functions {
         gif.finish()
 
         return finished
+    }
+
+    public static isGIF = (file?: string) => {
+        if (!file) return false
+        file = file.replace(/\?.*$/, "")
+        if (file?.startsWith("blob:")) {
+            const ext = file.split("#")?.[1] || ""
+            return ext?.toLowerCase() === ".gif"
+        }
+        if (file?.startsWith("data:image/gif")) {
+            return true
+        }
+        const ext = file.startsWith(".") ? file : path.extname(file)
+        return ext?.toLowerCase() === ".gif"
     }
 }

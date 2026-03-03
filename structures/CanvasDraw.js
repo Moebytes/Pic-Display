@@ -161,48 +161,48 @@ export default class extends PureComponent {
     this.isPressing = false;
 
     this.redoStack = [];
+
+    this.isPointerInside = false;
+    this.lastValidPoint = null;
   }
 
   componentDidMount() {
-    this.lazy = new LazyBrush({
-      radius: this.props.lazyRadius * window.devicePixelRatio,
-      enabled: true,
-      initialPoint: {
-        x: window.innerWidth / 2,
-        y: window.innerHeight / 2
-      }
-    });
+    window.addEventListener("mouseup", this.handleDrawEnd);
+    window.addEventListener("touchend", this.handleDrawEnd);
+    window.addEventListener("touchcancel", this.handleDrawEnd);
+
     this.chainLength = this.props.lazyRadius * window.devicePixelRatio;
 
-    this.canvasObserver = new ResizeObserver((entries, observer) =>
-      this.handleCanvasResize(entries, observer)
-    );
+    this.canvasObserver = new ResizeObserver(this.handleCanvasResize);
     this.canvasObserver.observe(this.canvasContainer);
 
     this.drawImage();
     this.loop();
 
-    window.setTimeout(() => {
-      const initX = window.innerWidth / 2;
-      const initY = window.innerHeight / 2;
-      this.lazy.update(
-        { x: initX - this.chainLength / 4, y: initY },
-        { both: true }
-      );
-      this.lazy.update(
-        { x: initX + this.chainLength / 4, y: initY },
-        { both: false }
-      );
+    window.requestAnimationFrame(() => {
+      const rect = this.canvas.interface.getBoundingClientRect();
+      const initX = (rect.width / 2) / this.props.zoom;
+      const initY = (rect.height / 2) / this.props.zoom;
+      this.currentPointer = { x: initX, y: initY };
+
+      this.lazy = new LazyBrush({
+        radius: this.props.lazyRadius * window.devicePixelRatio,
+        enabled: true,
+        initialPoint: this.currentPointer
+      });
+
+      this.lazy.update(this.currentPointer, { both: true });
+
       this.mouseHasMoved = true;
       this.valuesChanged = true;
+
       this.clear();
 
-      // Load saveData from prop if it exists
       if (this.props.saveData) {
         this.loadSaveData(this.props.saveData);
       }
-    }, 100);
-  }
+    });
+}
 
   componentDidUpdate(prevProps) {
     if (prevProps.lazyRadius !== this.props.lazyRadius) {
@@ -225,12 +225,22 @@ export default class extends PureComponent {
     }
 
     if (prevProps.zoom !== this.props.zoom) {
+      this.currentPointer = {
+        x: this.currentPointer.x * (prevProps.zoom / this.props.zoom),
+        y: this.currentPointer.y * (prevProps.zoom / this.props.zoom)
+      };
+
+      this.lazy.update(this.currentPointer, { both: true });
+
       this.loop();
     }
   }
 
   componentWillUnmount = () => {
     this.canvasObserver.unobserve(this.canvasContainer);
+    window.removeEventListener("mouseup", this.handleDrawEnd);
+    window.removeEventListener("touchend", this.handleDrawEnd);
+    window.removeEventListener("touchcancel", this.handleDrawEnd);
   };
 
   drawImage = () => {
@@ -472,19 +482,70 @@ export default class extends PureComponent {
     e.preventDefault();
 
     const { x, y } = this.getPointerPos(e);
-    this.handlePointerMove(x, y);
+
+    const rect = this.canvas.interface.getBoundingClientRect();
+    const isInside =
+      x >= 0 &&
+      y >= 0 &&
+      x <= rect.width / this.props.zoom &&
+      y <= rect.height / this.props.zoom;
+
+    this.isPointerInside = isInside;
+
+    if (isInside) {
+      this.handlePointerMove(x, y);
+    } else {
+      if (this.lazy) {
+        this.lazy.update({ x, y }, { addPoint: false });
+      }
+    }
   };
 
   handleDrawEnd = e => {
     e.preventDefault();
 
-    // Draw to this end pos
-    this.handleDrawMove(e);
-
     // Stop drawing & save the drawn line
     this.isDrawing = false;
     this.isPressing = false;
+
     this.saveLine();
+    this.points = [];
+  };
+
+  getExitPoint = () => {
+    if (!this.lastValidPoint) return null;
+
+    const rect = this.canvas.interface.getBoundingClientRect();
+    let { x, y } = this.lastValidPoint;
+
+    x = Math.max(0, Math.min(x, rect.width / this.props.zoom));
+    y = Math.max(0, Math.min(y, rect.height / this.props.zoom));
+
+    return { x, y };
+  };
+
+  handlePointerLeave = e => {
+    this.isPointerInside = false;
+
+    if (this.isDrawing && this.lastValidPoint) {
+      const exitPoint = this.getExitPoint();
+
+      if (exitPoint) {
+        const point = this.props.erase
+          ? { ...exitPoint, erase: true }
+          : { ...exitPoint };
+
+        this.points.push(point);
+
+        this.drawPoints({
+          points: this.points,
+          brushColor: point.erase ? "erase" : this.props.brushColor,
+          brushRadius: this.props.brushRadius
+        });
+
+        this.saveLine();
+      }
+    }
   };
 
   handleCanvasResize = (entries, observer) => {
@@ -515,34 +576,52 @@ export default class extends PureComponent {
 
   getPointerPos = e => {
     const rect = this.canvas.interface.getBoundingClientRect();
-
-    // use cursor pos as default
     let clientX = e.clientX;
     let clientY = e.clientY;
 
-    // use first touch if available
     if (e.changedTouches && e.changedTouches.length > 0) {
       clientX = e.changedTouches[0].clientX;
       clientY = e.changedTouches[0].clientY;
     }
 
-    // return mouse/touch position inside canvas
-    return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
-    };
+    const x = (clientX - rect.left) / this.props.zoom;
+    const y = (clientY - rect.top) / this.props.zoom;
+
+    return { x, y };
   };
 
   handlePointerMove = (x, y) => {
     if (this.props.disabled) return;
 
+    const rect = this.canvas.interface.getBoundingClientRect();
+    const isInside =
+      x >= 0 &&
+      y >= 0 &&
+      x <= rect.width / this.props.zoom &&
+      y <= rect.height / this.props.zoom;
+
+    if (!isInside) return;
+
     this.currentPointer = { x, y };
-    this.lazy.update({ x, y });
+    this.lastValidPoint = { x, y };
+
+    if (!this.lazy) {
+      this.lazy = new LazyBrush({
+        radius: this.props.lazyRadius * window.devicePixelRatio,
+        enabled: true,
+        initialPoint: { x, y }
+      });
+      this.chainLength = this.props.lazyRadius * window.devicePixelRatio;
+    } else {
+      if (!this.isDrawing) {
+        this.lazy.update({ x, y }, { both: true });
+      } else {
+        this.lazy.update({ x, y });
+      }
+    }
     const isDisabled = !this.lazy.isEnabled();
 
     // Add erase key to the first point in eraser lines
-    //const point = this.props.erase ? { ...this.lazy.brush.toObject(), erase: true } : this.lazy.brush.toObject();
-
     const point = this.props.erase
       ? { x, y, erase: true }
       : { x, y };
@@ -670,6 +749,11 @@ export default class extends PureComponent {
     );
   };
 
+  clearAll = () => {
+    this.lines = [];
+    this.clear();
+  };
+
   loop = ({ once = false } = {}) => {
     if (this.mouseHasMoved || this.valuesChanged) {
       const pointer = this.currentPointer || { x: 0, y: 0 };
@@ -718,8 +802,8 @@ export default class extends PureComponent {
 
   modifyCoordinates = (point) => {
     if (!point) return;
-    let x = point.x / this.props.zoom;
-    let y = point.y / this.props.zoom;
+    let x = point.x
+    let y = point.y
     return {x, y}
   }
 
@@ -729,8 +813,8 @@ export default class extends PureComponent {
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
 
     const { x, y } = pointer;
-    const drawX = x / this.props.zoom;
-    const drawY = y / this.props.zoom;
+    const drawX = x
+    const drawY = y
 
     ctx.beginPath();
     ctx.arc(drawX, drawY, this.props.brushRadius, 0, Math.PI * 2);
@@ -783,12 +867,9 @@ export default class extends PureComponent {
               style={{ ...canvasStyle, zIndex }}
               onMouseDown={isInterface ? this.handleDrawStart : undefined}
               onMouseMove={isInterface ? this.handleDrawMove : undefined}
-              onMouseUp={isInterface ? this.handleDrawEnd : undefined}
-              onMouseOut={isInterface ? this.handleDrawEnd : undefined}
+              onMouseOut={isInterface ? this.handlePointerLeave : undefined}
               onTouchStart={isInterface ? this.handleDrawStart : undefined}
               onTouchMove={isInterface ? this.handleDrawMove : undefined}
-              onTouchEnd={isInterface ? this.handleDrawEnd : undefined}
-              onTouchCancel={isInterface ? this.handleDrawEnd : undefined}
             />
           );
         })}

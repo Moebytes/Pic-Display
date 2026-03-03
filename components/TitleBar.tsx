@@ -25,6 +25,7 @@ import DrawIncreaseIcon from "../assets/svg/draw-increase.svg"
 import DrawDecreaseIcon from "../assets/svg/draw-decrease.svg"
 import DrawUndoIcon from "../assets/svg/draw-undo.svg"
 import DrawRedoIcon from "../assets/svg/draw-redo.svg"
+import DrawClearIcon from "../assets/svg/draw-clear.svg"
 import DrawInvertIcon from "../assets/svg/draw-invert.svg"
 import SquareIcon from "../assets/svg/square.svg"
 import CancelIcon from "../assets/svg/cancel.svg"
@@ -131,6 +132,10 @@ const TitleBar: React.FunctionComponent = () => {
         window.ipcRenderer.invoke("draw-invert")
     }
 
+    const clear = () => {
+        window.ipcRenderer.invoke("draw-clear")
+    }
+
     const increaseSize = () => {
         window.ipcRenderer.invoke("draw-increase-size")
     }
@@ -182,6 +187,7 @@ const TitleBar: React.FunctionComponent = () => {
                     {acceptAction === "draw" ? <>
                     <DrawUndoIcon className="title-bar-button" onClick={undo}/>
                     <DrawRedoIcon className="title-bar-button" onClick={redo}/>
+                    <DrawClearIcon className="title-bar-button" onClick={clear}/>
                     <DrawInvertIcon className="title-bar-button" onClick={invert}/>
                     <DrawIncreaseIcon className="title-bar-button" onClick={increaseSize}/>
                     <DrawDecreaseIcon className="title-bar-button" onClick={decreaseSize}/>
@@ -230,6 +236,7 @@ const TitleBar: React.FunctionComponent = () => {
                     {acceptAction === "draw" ? <>
                     <DrawUndoIcon className="title-bar-button" onClick={undo}/>
                     <DrawRedoIcon className="title-bar-button" onClick={redo}/>
+                    <DrawClearIcon className="title-bar-button" onClick={clear}/>
                     <DrawInvertIcon className="title-bar-button" onClick={invert}/>
                     <DrawIncreaseIcon className="title-bar-button" onClick={increaseSize}/>
                     <DrawDecreaseIcon className="title-bar-button" onClick={decreaseSize}/>

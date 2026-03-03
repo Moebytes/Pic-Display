@@ -55,7 +55,7 @@ const PhotoViewer: React.FunctionComponent = () => {
     const [rotateEnabled, setRotateEnabled] = useState(false)
     const [bulk, setBulk] = useState(false)
     const [bulkFiles, setBulkFiles] = useState<string[]>([])
-    const [brushSize, setBrushSize] = useState(25)
+    const [brushSize, setBrushSize] = useState(5)
     const [width, setWidth] = useState(0)
     const [height, setHeight] = useState(0)
     const drawRef = useRef<HTMLCanvasElement>(null) as any
@@ -407,7 +407,7 @@ const PhotoViewer: React.FunctionComponent = () => {
                 const containerRef = containerRefs[i]
                 if (!imageRef.current || !containerRef.current) continue
                 let image = feedbackImages ? await functions.createImage(feedbackImages[i]) : imageRef.current
-                if (path.extname(image.src) === ".gif") {
+                if (functions.isGIF(image.src)) {
                     const {frameArray, delayArray} = await functions.getGIFFrames(image.src, {canvas: true})
                     const newFrameArray = [] as Buffer[]
                     for (let i = 0; i < frameArray.length; i++) {
@@ -424,7 +424,7 @@ const PhotoViewer: React.FunctionComponent = () => {
         } else {
             if (!imageRef.current || !containerRef.current) return
             let image = feedbackImages ? await functions.createImage(feedbackImages[0]) : imageRef.current
-            if (path.extname(image.src) === ".gif") {
+            if (functions.isGIF(image.src)) {
                 const {frameArray, delayArray} = await functions.getGIFFrames(image.src, {canvas: true})
                 const newFrameArray = [] as Buffer[]
                 for (let i = 0; i < frameArray.length; i++) {
@@ -434,7 +434,7 @@ const PhotoViewer: React.FunctionComponent = () => {
                 const img = await functions.encodeGIF(newFrameArray, delayArray, frameArray[0].width, frameArray[0].height)
                 rendered.push(functions.bufferToBase64(img, "image/gif"))
             } else {
-                const img = functions.render(image, containerRef.current, state)
+                const img = functions.render(image, containerRef.current,state)
                 rendered.push(img)
             }
         }
@@ -460,34 +460,39 @@ const PhotoViewer: React.FunctionComponent = () => {
     }, [brightness, contrast, hue, saturation, lightness, blur, sharpen])
 
     useEffect(() => {
-        if (!effectRef.current || !imageRef.current || !containerRef.current) return
-        const imageWidth = containerRef.current.clientWidth
-        const imageHeight = containerRef.current.clientHeight
+        if (!effectRef.current || !imageRef.current) return
+
+        const isGif = functions.isGIF(imageRef.current.src)
+
+        const imageWidth = imageRef.current.naturalWidth
+        const imageHeight = imageRef.current.naturalHeight
 
         const canvas = effectRef.current
         const ctx = effectRef.current.getContext("2d")!
-        const landscape = imageWidth >= imageHeight
-        ctx.clearRect(0, 0, canvas.width, canvas.height)
 
-        const pixelWidth = imageWidth / pixelate 
-        const pixelHeight = imageHeight / pixelate
         canvas.width = imageWidth
         canvas.height = imageHeight
 
+        const bufferCanvas = document.createElement("canvas")
+        const bufferCtx = bufferCanvas.getContext("2d")!
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height)
         if (pixelate !== 1) {
-            ctx.drawImage(imageRef.current, 0, 0, pixelWidth, pixelHeight)
-            if (landscape) {
-                canvas.style.width = `${imageWidth * pixelate}px`
-                canvas.style.height = "auto"
-            } else {
-                canvas.style.width = "auto"
-                canvas.style.height = `${imageHeight * pixelate}px`
-            }
+            const pixelWidth = Math.max(1, Math.floor(canvas.width / pixelate))
+            const pixelHeight = Math.max(1, Math.floor(canvas.height / pixelate))
+
+            bufferCanvas.width = pixelWidth
+            bufferCanvas.height = pixelHeight
+
+            bufferCtx.drawImage(imageRef.current!, 0, 0, pixelWidth, pixelHeight)
+            ctx.imageSmoothingEnabled = false
+            ctx.drawImage(bufferCanvas, 0, 0, pixelWidth, pixelHeight,
+                    0, 0, canvas.width, canvas.height)
+            ctx.imageSmoothingEnabled = true
         } else {
-            canvas.style.width = "none"
-            canvas.style.height = "none"
+            if (!isGif) ctx.drawImage(imageRef.current!, 0, 0, canvas.width, canvas.height)
         }
-    }, [pixelate])
+    }, [pixelate, imageRef.current])
 
     const upload = useEffectEvent(async (files?: string | string[]) => {
         if (typeof files === "string") files = [files]
@@ -709,6 +714,7 @@ const PhotoViewer: React.FunctionComponent = () => {
 
     const resetZoom = () => {
         zoomRef?.current!.resetTransform(0)
+        setZoomScale(1)
     }
 
     const resetRotation = () => {
@@ -757,7 +763,7 @@ const PhotoViewer: React.FunctionComponent = () => {
     })
 
     const clearDraw = () => {
-        drawRef.current.clear()
+        drawRef.current.clearAll()
     }
 
     const undoDraw = () => {
