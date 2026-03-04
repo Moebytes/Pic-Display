@@ -126,7 +126,7 @@ export default class Functions {
     }
 
     public static bufferToBase64 = (buffer: Buffer, type: string) => {
-        return `data:${type};base64,${buffer.toString("base64")}`
+        return `data:image/${type};base64,${buffer.toString("base64")}`
     }
 
     public static getRotateMax = (degrees: number, width: number, height: number) => {

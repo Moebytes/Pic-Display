@@ -4,7 +4,7 @@
  * Licensed under CC BY-NC 4.0. See license.txt for details. *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-import React, {useEffect, useEffectEvent, useState, useRef} from "react"
+import React, {useEffect, useEffectEvent, useState, useRef, use} from "react"
 import {useDrawingSelector, useDrawingActions, useActiveSelector, useFilterSelector,
 useFilterActions} from "../store"
 import ReactCrop from "react-image-crop"
@@ -415,7 +415,7 @@ const PhotoViewer: React.FunctionComponent = () => {
                         newFrameArray.push(Buffer.from(frame))
                     }
                     const img = await functions.encodeGIF(newFrameArray, delayArray, frameArray[0].width, frameArray[0].height)
-                    rendered.push(functions.bufferToBase64(img, "image/gif"))
+                    rendered.push(functions.bufferToBase64(img, "gif"))
                 } else {
                     const img = functions.render(image, containerRef.current, state)
                     rendered.push(img)
@@ -432,7 +432,7 @@ const PhotoViewer: React.FunctionComponent = () => {
                     newFrameArray.push(Buffer.from(frame))
                 }
                 const img = await functions.encodeGIF(newFrameArray, delayArray, frameArray[0].width, frameArray[0].height)
-                rendered.push(functions.bufferToBase64(img, "image/gif"))
+                rendered.push(functions.bufferToBase64(img, "gif"))
             } else {
                 const img = functions.render(image, containerRef.current,state)
                 rendered.push(img)
