@@ -30,7 +30,6 @@ import functions, { ReduxState } from "../structures/functions"
 import CanvasDraw from "../structures/CanvasDraw"
 import {TransformWrapper, TransformComponent} from "react-zoom-pan-pinch"
 import BulkContainer, {BulkRef} from "./BulkContainer"
-import path from "path"
 import "./styles/photoviewer.less"
 
 const imageExtensions = [".jpg", ".jpeg", ".png", ".webp", ".avif", ".tiff", ".gif"]
@@ -70,7 +69,8 @@ const PhotoViewer: React.FunctionComponent = () => {
     useEffect(() => {
         const getOpenedFile = async () => {
             const file = await window.ipcRenderer.invoke("get-opened-file")
-            if (file && imageExtensions.includes(path.extname(file).toLowerCase())) {
+            const ext = await window.path.extname(file)
+            if (file && imageExtensions.includes(ext.toLowerCase())) {
                 upload(file)
             }
         }
@@ -494,22 +494,28 @@ const PhotoViewer: React.FunctionComponent = () => {
         }
     }, [pixelate, imageRef.current])
 
-    const upload = useEffectEvent(async (files?: string | string[]) => {
-        if (typeof files === "string") files = [files]
-        if (!files) files = await window.ipcRenderer.invoke("select-file") as string[]
-        if (!files) return
-        files = files.filter((f) => imageExtensions.includes(path.extname(f).toLowerCase()))
+    const upload = useEffectEvent(async (rawFiles?: string | string[]) => {
+        if (typeof rawFiles === "string") rawFiles = [rawFiles]
+        if (!rawFiles) rawFiles = await window.ipcRenderer.invoke("select-file") as string[]
+        if (!rawFiles) return
+        let files = [] as string[]
+        for (const file of files) {
+            const ext = await window.path.extname(file)
+            if (imageExtensions.includes(ext.toLowerCase())) files.push(file)
+        }
         if (files.length > 1) {
             setBulkFiles(files)
             setBulk(true)
             return window.ipcRenderer.invoke("update-original-images", files)
         }
         const file = files[0]
-        if (!imageExtensions.includes(path.extname(file).toLowerCase())) return
+        const ext = await window.path.extname(file)
+        if (!imageExtensions.includes(ext.toLowerCase())) return
         let newImg = file
-        if (path.extname(file) === ".tiff") {
+        if (ext === ".tiff") {
             newImg = await window.ipcRenderer.invoke("tiff-to-png", file)
-            window.ipcRenderer.invoke("set-original-name", path.basename(file, path.extname(file)))
+            const name = await window.path.basename(file, ext)
+            window.ipcRenderer.invoke("set-original-name", name)
         }
         setImage(newImg)
         window.ipcRenderer.invoke("resize-window", newImg)
@@ -672,13 +678,13 @@ const PhotoViewer: React.FunctionComponent = () => {
                         name = "image"
                     }
                 } else {
-                    name = path.basename(defaultPath)
+                    name = await window.path.basename(defaultPath)
                 }
                 defaultPath = `${await window.app.getPath("downloads")}/${name}`
             }
             let savePath = await window.ipcRenderer.invoke("save-dialog", defaultPath)
             if (!savePath) return
-            if (!path.extname(savePath)) savePath += path.extname(defaultPath)
+            if (!await window.path.extname(savePath)) savePath += await window.path.extname(defaultPath)
             window.ipcRenderer.invoke("save-image", image, savePath)
         }  
     })

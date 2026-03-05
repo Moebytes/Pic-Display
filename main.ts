@@ -14,7 +14,6 @@ import process from "process"
 import functions from "./structures/functions"
 import mainFunctions from "./structures/mainFunctions"
 import sharp from "sharp"
-import pack from "./package.json"
 import fs from "fs"
 
 process.setMaxListeners(0)
@@ -91,6 +90,19 @@ ipcMain.handle("clipboard:writeImage", (event, image: string) => {
 ipcMain.handle("app:getPath", (event, path: string) => {
   return app.getPath(path as any)
 })
+
+ipcMain.handle("path:basename", (event, pathname: string, suffix?: string) => {
+  return path.basename(pathname, suffix)
+})
+
+ipcMain.handle("path:extname", (event, pathname: string) => {
+  return path.extname(pathname)
+})
+
+ipcMain.handle("path:normalize", (event, pathname: string) => {
+  return path.normalize(pathname)
+})
+
 
 ipcMain.on("sync-redux-state", (event, state: any) => {
     window?.webContents.send("sync-redux-state", state)

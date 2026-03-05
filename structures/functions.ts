@@ -8,7 +8,6 @@ import GifEncoder from "gif-encoder"
 import pixels from "image-pixels"
 import gifFrames from "gif-frames"
 import axios from "axios"
-import path from "path"
 import {lightColorList, darkColorList} from "../LocalStorage"
 
 export interface ReduxState {
@@ -113,7 +112,9 @@ export default class Functions {
 
     public static getFile = async (filepath: string) => {
         const blob = await fetch(filepath).then((r) => r.blob())
-        const name = path.basename(filepath).replace(".mp3", "").replace(".wav", "").replace(".flac", "").replace(".ogg", "")
+        let name = await window.path.basename(filepath)
+        name = name.replace(".mp3", "").replace(".wav", "")
+            .replace(".flac", "").replace(".ogg", "")
         // @ts-ignore
         blob.lastModifiedDate = new Date()
         // @ts-ignore
@@ -204,8 +205,10 @@ export default class Functions {
         return found ? found.src : null
     }
 
-    public static pathEqual = (path1: string, path2: string) => {
-        return path.normalize(decodeURIComponent(path1.replace("file:///", ""))) === path.normalize(decodeURIComponent(path2.replace("file:///", "")))
+    public static pathEqual = async (path1: string, path2: string) => {
+        let norm1 = await window.path.normalize(decodeURIComponent(path1.replace("file:///", "")))
+        let norm2 = await window.path.normalize(decodeURIComponent(path2.replace("file:///", "")))
+        return norm1 === norm2
     }
 
     public static clamp = (num: number, min: number, max: number) => {
@@ -407,7 +410,7 @@ export default class Functions {
         if (file?.startsWith("data:image/gif")) {
             return true
         }
-        const ext = file.startsWith(".") ? file : path.extname(file)
+        const ext = file.startsWith(".") ? file : file.slice(-4)
         return ext?.toLowerCase() === ".gif"
     }
 }

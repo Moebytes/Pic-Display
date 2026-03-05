@@ -15,7 +15,13 @@ const InfoDialog: React.FunctionComponent = () => {
             if (images.length > 1) {
                 let image = functions.imageAtCursor(coords)
                 if (window.platform !== "windows") image = image.replace("file:///", "/")
-                const i = images.findIndex((img: string) => functions.pathEqual(img, decodeURIComponent(image)))
+                let i = -1
+                for (let index = 0; index < images.length; index++) {
+                    if (await functions.pathEqual(images[index], decodeURIComponent(image))) {
+                        i = index
+                        break
+                    }
+                }
                 if (i === -1) return
                 window.ipcRenderer.invoke("show-info-dialog", i)
             } else {
