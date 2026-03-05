@@ -311,7 +311,7 @@ ipcMain.handle("gif-effects", async (event: any, state: any) => {
   store.set("gifOptions", {transparency, transparentColor})
 })
 
-ipcMain.handle("show-gif-dialog", async (event) => {
+const showGIFDialog = async () => {
   if (currentDialog) {
     currentDialog.close()
     revertToLastState()
@@ -320,7 +320,8 @@ ipcMain.handle("show-gif-dialog", async (event) => {
   }
   const bounds = window?.getBounds()!
   currentDialog = new BrowserWindow({width: 190, height: 240, x: bounds.x + bounds.width - 190 - 170, y: bounds.y + 60, 
-    resizable: false, show: false, frame: false, transparent: initialTransparent, hasShadow: false, backgroundColor: "#00000000", webPreferences: {
+    resizable: false, show: false, frame: false, transparent: initialTransparent, hasShadow: false, 
+    backgroundColor: "#00000000", webPreferences: {
     preload: path.join(__dirname, "../preload/index.js")}})
   currentDialog.loadFile(path.join(__dirname, "../renderer/gifdialog.html"))
   currentDialog.removeMenu()
@@ -331,6 +332,10 @@ ipcMain.handle("show-gif-dialog", async (event) => {
   })
   // @ts-expect-error
   currentDialog.type = "gif"
+}
+
+ipcMain.handle("show-gif-dialog", async (event) => {
+  showGIFDialog()
 })
 
 ipcMain.handle("get-original-link", async () => {
@@ -525,7 +530,8 @@ ipcMain.handle("show-crop-dialog", async (event) => {
   }
   const bounds = window?.getBounds()!
   currentDialog = new BrowserWindow({width: 190, height: 220, x: bounds.x + 70, y: bounds.y + 400, 
-    resizable: false, show: false, frame: false, transparent: initialTransparent, hasShadow: false, backgroundColor: "#00000000", webPreferences: {
+    resizable: false, show: false, frame: false, transparent: initialTransparent, hasShadow: false, 
+    backgroundColor: "#00000000", webPreferences: {
     preload: path.join(__dirname, "../preload/index.js")}})
   currentDialog.loadFile(path.join(__dirname, "../renderer/cropdialog.html"))
   currentDialog.removeMenu()
@@ -588,7 +594,7 @@ ipcMain.handle("apply-rotate", async (event, state: any) => {
   window?.webContents.send("apply-rotate", state)
 })
 
-ipcMain.handle("show-rotate-dialog", async (event) => {
+const showRotateDialog = async () => {
   if (currentDialog) {
     currentDialog.close()
     revertToLastState()
@@ -608,6 +614,10 @@ ipcMain.handle("show-rotate-dialog", async (event) => {
   })
   // @ts-expect-error
   currentDialog.type = "rotate"
+}
+
+ipcMain.handle("show-rotate-dialog", async (event) => {
+  showRotateDialog()
 })
 
 ipcMain.handle("resize", async (event, state: any) => {
@@ -658,7 +668,7 @@ ipcMain.handle("apply-resize", async (event, state: any) => {
   window?.webContents.send("apply-resize", state)
 })
 
-ipcMain.handle("show-resize-dialog", async (event) => {
+const showResizeDialog = async () => {
   if (currentDialog) {
     currentDialog.close()
     revertToLastState()
@@ -678,6 +688,10 @@ ipcMain.handle("show-resize-dialog", async (event) => {
   })
   // @ts-expect-error
   currentDialog.type = "resize"
+}
+
+ipcMain.handle("show-resize-dialog", async (event) => {
+  showResizeDialog()
 })
 
 ipcMain.handle("binarize", async (event, state: any) => {
@@ -725,7 +739,7 @@ ipcMain.handle("apply-binarize", async (event, state: any) => {
   window?.webContents.send("apply-binarize", state)
 })
 
-ipcMain.handle("show-binarize-dialog", async (event) => {
+const showBinarizeDialog = async () => {
   if (currentDialog) {
     currentDialog.close()
     revertToLastState()
@@ -745,13 +759,17 @@ ipcMain.handle("show-binarize-dialog", async (event) => {
   })
   // @ts-expect-error
   currentDialog.type = "binarize"
+}
+
+ipcMain.handle("show-binarize-dialog", async (event) => {
+  showBinarizeDialog()
 })
 
 ipcMain.handle("apply-pixelate", async (event, state: any) => {
   window?.webContents.send("apply-pixelate", state)
 })
 
-ipcMain.handle("show-pixelate-dialog", async (event) => {
+const showPixelateDialog = async () => {
   if (currentDialog) {
     currentDialog.close()
     revertToLastState()
@@ -771,6 +789,10 @@ ipcMain.handle("show-pixelate-dialog", async (event) => {
   })
   // @ts-expect-error
   currentDialog.type = "pixelate"
+}
+
+ipcMain.handle("show-pixelate-dialog", async (event) => {
+  showPixelateDialog()
 })
 
 ipcMain.handle("blur", async (event, state: any) => {
@@ -820,7 +842,7 @@ ipcMain.handle("apply-blur", async (event, state: any) => {
   window?.webContents.send("apply-blur", state)
 })
 
-ipcMain.handle("show-blur-dialog", async (event) => {
+const showBlurDialog = async () => {
   if (currentDialog) {
     currentDialog.close()
     revertToLastState()
@@ -840,6 +862,10 @@ ipcMain.handle("show-blur-dialog", async (event) => {
   })
   // @ts-expect-error
   currentDialog.type = "blur"
+}
+
+ipcMain.handle("show-blur-dialog", async (event) => {
+  showBlurDialog()
 })
 
 ipcMain.handle("tint", async (event, state: any) => {
@@ -887,7 +913,7 @@ ipcMain.handle("apply-tint", async (event, state: any) => {
   window?.webContents.send("apply-tint", state)
 })
 
-ipcMain.handle("show-tint-dialog", async (event) => {
+const showTintDialog = async () => {
   if (currentDialog) {
     currentDialog.close()
     revertToLastState()
@@ -907,6 +933,10 @@ ipcMain.handle("show-tint-dialog", async (event) => {
   })
   // @ts-expect-error
   currentDialog.type = "tint"
+}
+
+ipcMain.handle("show-tint-dialog", async (event) => {
+  showTintDialog()
 })
 
 ipcMain.handle("hsl", async (event, state: any) => {
@@ -955,7 +985,7 @@ ipcMain.handle("apply-hsl", async (event, state: any) => {
   window?.webContents.send("apply-hsl", state)
 })
 
-ipcMain.handle("show-hsl-dialog", async (event) => {
+const showHSLDialog = async () => {
   if (currentDialog) {
     currentDialog.close()
     revertToLastState()
@@ -975,6 +1005,10 @@ ipcMain.handle("show-hsl-dialog", async (event) => {
   })
   // @ts-expect-error
   currentDialog.type = "hsl"
+}
+
+ipcMain.handle("show-hsl-dialog", async (event) => {
+  showHSLDialog()
 })
 
 ipcMain.handle("brightness", async (event, state: any) => {
@@ -1024,7 +1058,7 @@ ipcMain.handle("apply-brightness", async (event, state: any) => {
   window?.webContents.send("apply-brightness", state)
 })
 
-ipcMain.handle("show-brightness-dialog", async (event) => {
+const showBrightnessDialog = async () => {
   if (currentDialog) {
     currentDialog.close()
     revertToLastState()
@@ -1033,7 +1067,8 @@ ipcMain.handle("show-brightness-dialog", async (event) => {
   }
   const bounds = window?.getBounds()!
   currentDialog = new BrowserWindow({width: 250, height: 150, x: bounds.x + 70, y: bounds.y + 40, 
-    resizable: false, show: false, frame: false, transparent: initialTransparent, hasShadow: false, backgroundColor: "#00000000", webPreferences: {
+    resizable: false, show: false, frame: false, transparent: initialTransparent, hasShadow: false, 
+    backgroundColor: "#00000000", webPreferences: {
     preload: path.join(__dirname, "../preload/index.js")}})
   currentDialog.loadFile(path.join(__dirname, "../renderer/brightnessdialog.html"))
   currentDialog.removeMenu()
@@ -1044,6 +1079,10 @@ ipcMain.handle("show-brightness-dialog", async (event) => {
   })
   // @ts-expect-error
   currentDialog.type = "brightness"
+}
+
+ipcMain.handle("show-brightness-dialog", async (event) => {
+  showBrightnessDialog()
 })
 
 const revertToLastState = () => {
@@ -1506,6 +1545,29 @@ const applicationMenu = () =>  {
             const win = window as BrowserWindow
             win?.webContents.send("fullscreen")
         }}
+      ]
+    },
+    {
+      label: "Effect",
+      submenu: [
+        {label: "Brightness and Contrast",
+          click: () => showBrightnessDialog()},
+        {label: "HSL Adjustment",
+          click: () => showHSLDialog()},
+        {label: "Tint",
+          click: () => showTintDialog()},
+        {label: "Blur and Sharpen",
+          click: () => showBlurDialog()},
+        {label: "Pixelate",
+          click: () => showPixelateDialog()},
+        {label: "Binarize",
+          click: () => showBinarizeDialog()},
+        {label: "Rotate",
+          click: () => showRotateDialog()},
+        {label: "Resize",
+          click: () => showResizeDialog()},
+        {label: "GIF Options",
+          click: () => showGIFDialog()}
       ]
     },
     {role: "windowMenu"},

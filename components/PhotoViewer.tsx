@@ -499,7 +499,7 @@ const PhotoViewer: React.FunctionComponent = () => {
         if (!rawFiles) rawFiles = await window.ipcRenderer.invoke("select-file") as string[]
         if (!rawFiles) return
         let files = [] as string[]
-        for (const file of files) {
+        for (const file of rawFiles) {
             const ext = await window.path.extname(file)
             if (imageExtensions.includes(ext.toLowerCase())) files.push(file)
         }
