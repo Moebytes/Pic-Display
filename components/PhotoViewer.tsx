@@ -64,6 +64,7 @@ const PhotoViewer: React.FunctionComponent = () => {
     const filterRef = useRef<HTMLDivElement>(null)
     const fullscreenRef = useRef<HTMLDivElement>(null)
     const bulkRef = useRef<BulkRef>(null)
+    const invertRef = useRef(false)
     const zoomRef = useRef(null) as any
 
     useEffect(() => {
@@ -781,6 +782,8 @@ const PhotoViewer: React.FunctionComponent = () => {
     }
 
     const invertDraw = async () => {
+        if (invertRef.current) return
+        invertRef.current = true
         const data = drawRef.current.getSaveData()
         const parsed = JSON.parse(data)
         let megaLineIdx = parsed.lines.findIndex((l: any) => l.brushRadius === parsed.width + parsed.height)
@@ -800,6 +803,9 @@ const PhotoViewer: React.FunctionComponent = () => {
             }
         }
         drawRef.current.loadSaveData(JSON.stringify(parsed), true)
+        setTimeout(() => {
+            invertRef.current = false
+        }, 100)
     }
 
     const saveDrawing = useEffectEvent(async () => {

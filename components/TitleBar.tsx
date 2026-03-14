@@ -187,17 +187,17 @@ const TitleBar: React.FunctionComponent = () => {
                 </div>
                 <div className="title-button-container">
                     {acceptAction === "draw" ? <>
-                    <DrawUndoIcon className="title-bar-button" onClick={undo}/>
-                    <DrawRedoIcon className="title-bar-button" onClick={redo}/>
-                    <DrawClearIcon className="title-bar-button" onClick={clear}/>
-                    <DrawInvertIcon className="title-bar-button" onClick={invert}/>
+                    <CancelIcon className="title-bar-button" onClick={() => triggerAction("cancel")}/>
+                    <AcceptIcon className="title-bar-button" onClick={() => triggerAction("accept")}/>
                     <DrawIncreaseIcon className="title-bar-button" onClick={increaseSize}/>
                     <DrawDecreaseIcon className="title-bar-button" onClick={decreaseSize}/>
                     {drawing && erasing ? <EraseIcon className="title-bar-button" onClick={draw}/> : 
                     <DrawIcon className="title-bar-button" onClick={draw}/>}
                     <input type="color" className="draw-color-box" onChange={(event) => setBrushColor(event.target.value)} value={brushColor}></input>
-                    <CancelIcon className="title-bar-button" onClick={() => triggerAction("cancel")}/>
-                    <AcceptIcon className="title-bar-button" onClick={() => triggerAction("accept")}/>
+                    <DrawUndoIcon className="title-bar-button" onClick={undo}/>
+                    <DrawRedoIcon className="title-bar-button" onClick={redo}/>
+                    <DrawClearIcon className="title-bar-button" onClick={clear}/>
+                    <DrawInvertIcon className="title-bar-button" onClick={invert}/>
                     </> : null}
                     {acceptAction === "crop" ? <>
                     <SquareIcon className="title-bar-button" onClick={() => triggerAction("square")}/>
@@ -236,17 +236,17 @@ const TitleBar: React.FunctionComponent = () => {
                 </div>
                 <div className="title-button-container">
                     {acceptAction === "draw" ? <>
-                    <DrawUndoIcon className="title-bar-button" onClick={undo}/>
-                    <DrawRedoIcon className="title-bar-button" onClick={redo}/>
-                    <DrawClearIcon className="title-bar-button" onClick={clear}/>
-                    <DrawInvertIcon className="title-bar-button" onClick={invert}/>
+                    <CancelIcon className="title-bar-button" onClick={() => triggerAction("cancel")}/>
+                    <AcceptIcon className="title-bar-button" onClick={() => triggerAction("accept")}/>
                     <DrawIncreaseIcon className="title-bar-button" onClick={increaseSize}/>
                     <DrawDecreaseIcon className="title-bar-button" onClick={decreaseSize}/>
                     {drawing && erasing ? <EraseIcon className="title-bar-button" onClick={draw}/> : 
                     <DrawIcon className="title-bar-button" onClick={draw}/>}
                     <input type="color" className="draw-color-box" onChange={(event) => setBrushColor(event.target.value)} value={brushColor}></input>
-                    <CancelIcon className="title-bar-button" onClick={() => triggerAction("cancel")}/>
-                    <AcceptIcon className="title-bar-button" onClick={() => triggerAction("accept")}/>
+                    <DrawUndoIcon className="title-bar-button" onClick={undo}/>
+                    <DrawRedoIcon className="title-bar-button" onClick={redo}/>
+                    <DrawClearIcon className="title-bar-button" onClick={clear}/>
+                    <DrawInvertIcon className="title-bar-button" onClick={invert}/>
                     </> : null}
                     {acceptAction === "crop" ? <>
                     <SquareIcon className="title-bar-button" onClick={() => triggerAction("square")}/>
