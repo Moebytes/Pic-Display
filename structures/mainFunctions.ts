@@ -9,6 +9,7 @@ import path from "path"
 import unzipper from "unzipper"
 import sharp from "sharp"
 import functions from "./functions"
+import {dialog} from "electron"
 
 const imageExtensions = [".jpg", ".jpeg", ".png", ".webp", ".avif", ".tiff", ".gif"]
 
@@ -65,8 +66,19 @@ export default class MainFunctions {
         }
     }
 
-    public static getSortedFiles = async (dir: string) => {
-        const files = await fs.promises.readdir(dir)
+    public static getSortedFiles = async (dir: string, window: Electron.BrowserWindow) => {
+        let files = [] as string[]
+        try {
+            files = await fs.promises.readdir(dir)
+        } catch {
+            const result = await dialog.showOpenDialog(window, {
+                defaultPath: dir,
+                properties: ["createDirectory", "openDirectory"]
+            })
+            dir = result.filePaths[0]
+            if (!dir) return []
+            files = await fs.promises.readdir(dir)
+        }
         return files
             .filter((f) => imageExtensions.includes(path.extname(f).toLowerCase()))
             .map(fileName => ({

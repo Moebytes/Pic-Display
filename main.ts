@@ -173,30 +173,18 @@ ipcMain.handle("bulk-save-directory", async (event: any) => {
   if (!window) return
   let images = historyStates[historyIndex] as any
   if (!images) return null
-  const save = await dialog.showSaveDialog(window, {
+  const result = await dialog.showOpenDialog(window, {
     defaultPath: path.dirname(originalImages[0]),
-    filters: [
-      {name: "All Files", extensions: ["*"]},
-      {name: "PNG", extensions: ["png"]},
-      {name: "JPG", extensions: ["jpg"]},
-      {name: "GIF", extensions: ["gif"]},
-      {name: "WEBP", extensions: ["webp"]},
-      {name: "AVIF", extensions: ["avif"]},
-      {name: "TIFF", extensions: ["tiff"]}
-    ],
-    properties: ["createDirectory"]
+    properties: ["createDirectory", "openDirectory"]
   })
-  if (!save.filePath) return
+  const dir = result.filePaths[0]
+  if (!dir) return
   for (let i = 0; i < images.length; i++) {
     let name = path.basename(originalImages[i], path.extname(originalImages[i]))
-    if (path.extname(save.filePath)) {
-      name += path.extname(save.filePath)
-    } else {
-      name += path.extname(originalImages[i]) ? path.extname(originalImages[i]) : ".png"
-    }
-    saveImage(images[i], `${path.dirname(save.filePath)}/${name}`)
+    name += path.extname(originalImages[i]) ? path.extname(originalImages[i]) : ".png"
+    saveImage(images[i], `${dir}/${name}`)
   }
-  shell.openPath(path.dirname(save.filePath))
+  shell.openPath(dir)
 })
 
 ipcMain.handle("bulk-save-overwrite", (event: any) => {
@@ -1262,7 +1250,7 @@ ipcMain.handle("next", async (event) => {
   if (image.startsWith("data:")) return
   image = image.replace("file:///", "")
   const directory = path.dirname(image)
-  const files = await mainFunctions.getSortedFiles(directory)
+  const files = await mainFunctions.getSortedFiles(directory, window!)
   const index = files.findIndex((f) => f === path.basename(image))
   if (index !== -1) {
     if (files[index + 1]) return `file:///${directory}/${files[index + 1]}`
@@ -1278,7 +1266,7 @@ ipcMain.handle("previous", async (event) => {
   if (image.startsWith("data:")) return
   image = image.replace("file:///", "")
   const directory = path.dirname(image)
-  const files = await mainFunctions.getSortedFiles(directory)
+  const files = await mainFunctions.getSortedFiles(directory, window!)
   const index = files.findIndex((f) => f === path.basename(image))
   if (index !== -1) {
     if (files[index - 1]) return `file:///${directory}/${files[index - 1]}`
