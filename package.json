@@ -32,6 +32,7 @@
       "**/node_modules/sharp/**/*",
       "**/node_modules/@img/**/*"
     ],
+    "electronLanguages": ["en"],
     "mac": {
       "icon": "assets/mas/icon.icns",
       "target": {
