@@ -45,9 +45,14 @@ A cute image viewer!
 
 Our design is available here: https://www.figma.com/design/kqGaBzYxe93zSPxDPz6wRa/Pic-Display
 
-### Installation
+### Purchase
 
-Download from [releases](https://github.com/Moebytes/Pic-Display/releases).
+<a href="https://apps.apple.com/us/app/pic-display/id6760277745" target="_blank">
+  <img src="assets/images/mac-app-store.svg" style="height:60px"/>
+</a>
+<br/><br/>
+
+Linux version is free and available in [releases](https://github.com/Moebytes/Pic-Display/releases).
 
 ### See Also
 
