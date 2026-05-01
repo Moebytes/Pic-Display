@@ -50,6 +50,7 @@ Our design is available here: https://www.figma.com/design/kqGaBzYxe93zSPxDPz6wR
 <a href="https://apps.apple.com/us/app/pic-display/id6760277745" target="_blank">
   <img src="assets/images/mac-app-store.svg" style="height:60px; margin-right:10px;"/>
 </a>
+&nbsp;&nbsp;
 <a href="https://apps.microsoft.com/store/detail/9P0PV1767T83" target="_blank">
   <img src="assets/images/microsoft-store.svg" style="height:60px"/>
 </a>
