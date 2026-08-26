@@ -199,18 +199,19 @@ const TitleBar: React.FunctionComponent = () => {
                     <DrawClearIcon className="title-bar-button" onClick={clear}/>
                     <DrawInvertIcon className="title-bar-button" onClick={invert}/>
                     </> : null}
+
                     {acceptAction === "crop" ? <>
                     <SquareIcon className="title-bar-button" onClick={() => triggerAction("square")}/>
                     <CancelIcon className="title-bar-button" onClick={() => triggerAction("cancel")}/>
                     <AcceptIcon className="title-bar-button" onClick={() => triggerAction("accept")}/>
                     </> : null}
 
+                    {!acceptAction ? <>
                     <UploadIcon className="title-bar-button" onClick={upload}/>
                     <SearchIcon className="title-bar-button" onClick={search}/>
                     <PasteIcon className="title-bar-button" onClick={paste}/>
-                    {acceptAction !== "draw" ? <>
                     {drawing && erasing ? <EraseIcon className="title-bar-button" onClick={draw}/> : 
-                    <DrawIcon className="title-bar-button" onClick={draw}/>}</> : null}
+                    <DrawIcon className="title-bar-button" onClick={draw}/>}
                     <GIFIcon className="title-bar-button" onClick={gif}/>
                     {imageDrag ?
                     <ImageDragIcon className="title-bar-button" onClick={drag}/> :
@@ -221,6 +222,7 @@ const TitleBar: React.FunctionComponent = () => {
                     <LightIcon className="title-bar-button" onClick={switchTheme}/> :
                     <DarkIcon className="title-bar-button" onClick={switchTheme}/>}
                     <MacIcon className="title-bar-button" onClick={switchOSStyle}/>
+                    </> : null}
                 </div>
             </div>
         )
@@ -248,18 +250,19 @@ const TitleBar: React.FunctionComponent = () => {
                     <DrawClearIcon className="title-bar-button" onClick={clear}/>
                     <DrawInvertIcon className="title-bar-button" onClick={invert}/>
                     </> : null}
+
                     {acceptAction === "crop" ? <>
                     <SquareIcon className="title-bar-button" onClick={() => triggerAction("square")}/>
                     <CancelIcon className="title-bar-button" onClick={() => triggerAction("cancel")}/>
                     <AcceptIcon className="title-bar-button" onClick={() => triggerAction("accept")}/>
                     </> : null}
 
+                    {!acceptAction ? <>
                     <UploadIcon className="title-bar-button" onClick={upload}/>
                     <SearchIcon className="title-bar-button" onClick={search}/>
                     <PasteIcon className="title-bar-button" onClick={paste}/>
-                    {acceptAction !== "draw" ? <>
                     {drawing && erasing ? <EraseIcon className="title-bar-button" onClick={draw}/> : 
-                    <DrawIcon className="title-bar-button" onClick={draw}/>}</> : null}
+                    <DrawIcon className="title-bar-button" onClick={draw}/>}
                     <GIFIcon className="title-bar-button" onClick={gif}/>
                     {imageDrag ?
                     <ImageDragIcon className="title-bar-button" onClick={drag}/> :
@@ -270,6 +273,7 @@ const TitleBar: React.FunctionComponent = () => {
                     <LightIcon className="title-bar-button" onClick={switchTheme}/> :
                     <DarkIcon className="title-bar-button" onClick={switchTheme}/>}
                     <WindowsIcon className="title-bar-button" onClick={switchOSStyle}/>
+                    </> : null}
                 </div>
             </div>
             <div className="title-group-container">

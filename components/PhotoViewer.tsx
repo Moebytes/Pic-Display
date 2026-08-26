@@ -781,7 +781,7 @@ const PhotoViewer: React.FunctionComponent = () => {
         drawRef.current.redo()
     }
 
-    const invertDraw = async () => {
+    const invertDraw = useEffectEvent(async () => {
         if (invertRef.current) return
         invertRef.current = true
         const data = drawRef.current.getSaveData()
@@ -806,7 +806,7 @@ const PhotoViewer: React.FunctionComponent = () => {
         setTimeout(() => {
             invertRef.current = false
         }, 100)
-    }
+    })
 
     const saveDrawing = useEffectEvent(async () => {
         const layerURL = drawRef.current.getDataURL("png", false)

@@ -96,7 +96,7 @@ const PixelateDialog: React.FunctionComponent = () => {
                     <div className="dialog-row-container">
                         <div className="dialog-row">
                             <p className="dialog-text">Strength: </p>
-                            <Slider className="dialog-slider" onChange={(value) => setPixelate(value as number)} min={1} max={15} 
+                            <Slider className="dialog-slider" onChange={(value) => setPixelate(value as number)} min={1} max={25} 
                             step={0.1} value={pixelate}/>
                         </div>
                     </div>
